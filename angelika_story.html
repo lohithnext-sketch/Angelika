@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Angelika's Story</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,700;1,400&family=Great+Vibes&family=Montserrat:wght@200;400&display=swap" rel="stylesheet">
+    <style>
+        /* --- CORE SETTINGS --- */
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            background-color: #050103; /* Deepest Velvet Black */
+            font-family: 'Cormorant Garamond', serif;
+            color: #e0e0e0;
+            overflow-x: hidden;
+            scroll-behavior: smooth;
+        }
+
+        /* --- THE CANVAS BACKGROUND (Fixed) --- */
+        #effect-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1; /* Behind everything */
+            background: radial-gradient(circle at center, #1a0508 0%, #000000 100%);
+        }
+
+        /* --- LOGIN SCREEN (Overlay) --- */
+        #login-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: #000;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            transition: opacity 1.5s ease;
+        }
+
+        .login-box {
+            text-align: center;
+            border: 1px solid rgba(212, 175, 55, 0.4);
+            padding: 40px;
+            background: rgba(10, 10, 10, 0.8);
+            box-shadow: 0 0 50px rgba(0,0,0,1);
+        }
+
+        .login-box h2 {
+            font-family: 'Montserrat', sans-serif;
+            letter-spacing: 5px;
+            text-transform: uppercase;
+            font-size: 1rem;
+            color: #d4af37; /* Gold */
+            margin-bottom: 30px;
+        }
+
+        input {
+            background: transparent;
+            border: none;
+            border-bottom: 1px solid #555;
+            color: white;
+            font-size: 1.5rem;
+            text-align: center;
+            padding: 10px;
+            outline: none;
+            font-family: 'Cormorant Garamond', serif;
+            transition: 0.3s;
+        }
+        input:focus { border-bottom: 1px solid #d4af37; }
+
+        button {
+            margin-top: 30px;
+            background: transparent;
+            border: 1px solid #d4af37;
+            color: #d4af37;
+            padding: 10px 40px;
+            font-family: 'Montserrat', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        button:hover { background: #d4af37; color: #000; }
+
+        /* --- SCROLL SECTIONS --- */
+        .scroll-container {
+            display: none; /* Hidden until login */
+            opacity: 0;
+            transition: opacity 2s ease;
+        }
+
+        section {
+            min-height: 100vh; /* Each section takes full screen */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            position: relative;
+        }
+
+        .content-card {
+            max-width: 800px;
+            text-align: center;
+            opacity: 0;
+            transform: translateY(50px);
+            transition: all 1s ease-out;
+        }
+
+        .content-card.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Typography Styles */
+        h1.big-title {
+            font-family: 'Great Vibes', cursive;
+            font-size: 5rem;
+            background: linear-gradient(to right, #bf953f, #fcf6ba, #bf953f);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 20px;
+        }
+
+        p.text {
+            font-size: 1.8rem;
+            line-height: 1.6;
+            color: #cccccc;
+            font-weight: 300;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.8);
+        }
+
+        .highlight {
+            color: #d4af37;
+            font-style: italic;
+            font-weight: 700;
+        }
+
+        .signature {
+            font-size: 2.5rem;
+            margin-top: 30px;
+            color: #d4af37;
+            font-family: 'Great Vibes', cursive;
+        }
+
+        .scroll-hint {
+            position: absolute;
+            bottom: 30px;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.8rem;
+            letter-spacing: 3px;
+            color: #555;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {transform: translateY(0);}
+            40% {transform: translateY(-10px);}
+            60% {transform: translateY(-5px);}
+        }
+
+        /* Mobile Adjustments */
+        @media (max-width: 768px) {
+            h1.big-title { font-size: 3.5rem; }
+            p.text { font-size: 1.3rem; }
+        }
+
+    </style>
+</head>
+<body>
+
+    <canvas id="effect-canvas"></canvas>
+
+    <div id="login-overlay">
+        <div class="login-box">
+            <h2>Authentication Required</h2>
+            <input type="text" id="nameInput" placeholder="Enter Name">
+            <br>
+            <button onclick="login()">Enter</button>
+            <p id="error-msg" style="color:red; font-size:0.8rem; display:none; margin-top:10px;">Access Denied</p>
+        </div>
+    </div>
+
+    <div class="scroll-container" id="main-scroll">
+        
+        <section>
+            <div class="content-card">
+                <h1 class="big-title">Happy Valentine's Day</h1>
+                <p class="text">To my dearest Angelika</p>
+            </div>
+            <div class="scroll-hint">SCROLL SLOWLY</div>
+        </section>
+
+        <section>
+            <div class="content-card">
+                <p class="text">
+                    I know the world has been heavy lately. I know you've been hurt.
+                    <br><br>
+                    But I want to tell you this:
+                    <br>
+                    <span class="highlight">You heal my heart just by being you.</span>
+                </p>
+            </div>
+        </section>
+
+        <section>
+            <div class="content-card">
+                <p class="text">
+                    You are a strong woman and an incredible mother.
+                    <br><br>
+                    Your love for your daughter is the most beautiful thing I have ever seen.
+                    Sending double the love to her today as well.
+                </p>
+            </div>
+        </section>
+
+        <section id="final-section">
+            <div class="content-card">
+                <p class="text">
+                    I don't just "like" talking to you... I <b>need</b> it.
+                    <br><br>
+                    Please, never worry about anyone else. I am here. 
+                    I am always in your corner.
+                    <br><br>
+                    You are never alone.
+                </p>
+                <div class="signature">- Lohith</div>
+            </div>
+        </section>
+
+    </div>
+
+    <script>
+        /* --------------------------------------------------
+           1. LOGIN SYSTEM
+           -------------------------------------------------- */
+        function login() {
+            const name = document.getElementById('nameInput').value.trim().toLowerCase();
+            const overlay = document.getElementById('login-overlay');
+            const main = document.getElementById('main-scroll');
+            
+            if(name === 'angelika') {
+                overlay.style.opacity = '0';
+                setTimeout(() => {
+                    overlay.style.display = 'none';
+                    main.style.display = 'block';
+                    // Small timeout to allow display block to render before opacity fade
+                    setTimeout(() => { main.style.opacity = '1'; }, 100);
+                }, 1500);
+            } else {
+                document.getElementById('error-msg').style.display = 'block';
+            }
+        }
+
+        /* --------------------------------------------------
+           2. SCROLL OBSERVER (The "Scrollytelling" Logic)
+           -------------------------------------------------- */
+        const observerOptions = {
+            threshold: 0.3 // Trigger when 30% of the section is visible
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.querySelector('.content-card').classList.add('visible');
+                    
+                    // Special trigger for the final section (Explosion)
+                    if(entry.target.id === 'final-section') {
+                        triggerFinale();
+                    }
+                } else {
+                    entry.target.querySelector('.content-card').classList.remove('visible');
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('section').forEach(section => {
+            observer.observe(section);
+        });
+
+        /* --------------------------------------------------
+           3. PREMIUM CANVAS EFFECTS (Gold Dust & Hearts)
+           -------------------------------------------------- */
+        const canvas = document.getElementById('effect-canvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        let particles = [];
+        let particlesArray = [];
+
+        // GOLD DUST CLASS
+        class Particle {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.size = Math.random() * 2;
+                this.speedX = (Math.random() * 0.5) - 0.25;
+                this.speedY = (Math.random() * 0.5) - 0.25;
+                this.color = `rgba(212, 175, 55, ${Math.random() * 0.5 + 0.1})`; // Transparent Gold
+            }
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+                if(this.size > 0.2) this.size -= 0.005; // Twinkle effect
+                else this.size = Math.random() * 2;
+
+                if(this.x < 0 || this.x > canvas.width) this.speedX *= -1;
+                if(this.y < 0 || this.y > canvas.height) this.speedY *= -1;
+            }
+            draw() {
+                ctx.fillStyle = this.color;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        // CONFETTI CLASS (For Finale)
+        class Confetti {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = canvas.height + Math.random() * 100; // Start below screen
+                this.size = Math.random() * 10 + 5;
+                this.speedY = Math.random() * -5 - 2; // Shoot up
+                this.speedX = Math.random() * 4 - 2;
+                this.color = `hsl(${Math.random() * 50 + 330}, 100%, 60%)`; // Pinks and Reds
+                this.rotation = 0;
+            }
+            update() {
+                this.y += this.speedY;
+                this.x += this.speedX;
+                this.rotation += 0.1;
+                this.speedY += 0.05; // Gravity
+            }
+            draw() {
+                ctx.save();
+                ctx.translate(this.x, this.y);
+                ctx.rotate(this.rotation);
+                ctx.fillStyle = this.color;
+                ctx.fillRect(0,0, this.size, this.size);
+                ctx.restore();
+            }
+        }
+
+        function initParticles() {
+            for(let i=0; i<150; i++){
+                particlesArray.push(new Particle());
+            }
+        }
+
+        let finaleTriggered = false;
+        let confettiArray = [];
+
+        function triggerFinale() {
+            if(finaleTriggered) return;
+            finaleTriggered = true;
+            // Create confetti
+            for(let i=0; i<200; i++) {
+                confettiArray.push(new Confetti());
+            }
+        }
+
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw Gold Dust
+            for(let i=0; i<particlesArray.length; i++){
+                particlesArray[i].update();
+                particlesArray[i].draw();
+            }
+
+            // Draw Confetti (if triggered)
+            if(finaleTriggered) {
+                for(let i=0; i<confettiArray.length; i++){
+                    confettiArray[i].update();
+                    confettiArray[i].draw();
+                }
+            }
+
+            requestAnimationFrame(animate);
+        }
+
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+
+        initParticles();
+        animate();
+
+    </script>
+</body>
+</html>
